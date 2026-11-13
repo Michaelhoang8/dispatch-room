@@ -2,12 +2,13 @@
 import argparse
 import json
 import time
+from pathlib import Path
 from queue_store import Queue, run_one
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--db', default='data/dispatch.sqlite3')
+    parser.add_argument('--db', default=str(Path(__file__).resolve().parent / 'data' / 'dispatch.sqlite3'))
     parser.add_argument('--once', action='store_true')
     args = parser.parse_args()
     queue = Queue(args.db)

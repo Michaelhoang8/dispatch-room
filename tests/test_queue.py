@@ -1,5 +1,7 @@
 import hashlib
 import tempfile
+import subprocess
+import sys
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -146,6 +148,13 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(run_one(self.queue)['status'], 'succeeded')
         with self.assertRaises(ValueError):
             self.add('bad-unicode', text='\ud800')
+
+    def test_separate_worker_process_consumes_the_shared_database(self):
+        job = self.add()
+        result = subprocess.run([sys.executable, str(Path(__file__).resolve().parents[1] / 'worker.py'),
+                                 '--db', str(self.path), '--once'], capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.queue.get(job['id'])['status'], 'succeeded')
 
 
 if __name__ == '__main__':
