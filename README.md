@@ -4,6 +4,8 @@ A durable local job queue with a compact operations console. Submit text-process
 
 ![Dispatch Room console](docs/console.png)
 
+The queue uses a full-width job register with clickable state counts as filters. Select a row to open its record, payload, result, and transition history in a side panel. Job creation remains a separate form, and lease-recovery tools expand below the queue. State-filter buttons retain keyboard focus across refreshes.
+
 The backend is real SQLite persistence, not a browser simulation. Jobs and event records survive server restarts. Built-in handlers count words, hash UTF-8 text, or deliberately fail a chosen number of attempts to demonstrate retry behavior.
 
 ## Run

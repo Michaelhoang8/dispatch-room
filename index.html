@@ -9,29 +9,20 @@
   </head>
   <body>
     <header>
-      <a href="/" class="brand"><span class="mark">↗</span> DISPATCH ROOM</a
-      ><span class="local">● LOCAL OPERATIONS</span
-      ><a href="https://github.com/Michaelhoang8/dispatch-room">Source ↗</a>
+      <h1>Dispatch Room</h1>
+      <div class="actions">
+        <button id="refresh">Refresh</button><button id="run">Run next job</button
+        ><button id="new" class="primary">New job</button>
+      </div>
     </header>
     <main>
-      <section class="title-row">
-        <div>
-          <p class="eyebrow">DURABLE WORK / SQLITE</p>
-          <h1>Every job has a story.</h1>
-          <p class="subtitle">Enqueue it. Lease it. Leave a record.</p>
-        </div>
-        <div class="actions">
-          <button id="refresh">Refresh</button><button id="run">Run next job →</button
-          ><button id="new" class="primary">+ New job</button>
-        </div>
-      </section>
       <p id="notice" role="status" aria-live="polite">Connecting to the local queue…</p>
       <section id="counts" class="counts" aria-label="Queue totals"></section>
       <section class="console">
         <div class="queue-panel">
           <div class="panel-title">
             <h2>Job register</h2>
-            <label for="filter"
+            <label class="sr-only" for="filter"
               >Show
               <select id="filter">
                 <option value="">All states</option>
@@ -80,52 +71,45 @@
             </p>
           </details>
         </div>
-        <aside class="inspector" aria-label="Job inspector">
-          <div class="panel-title">
-            <h2>Inside the job</h2>
-            <span id="selected-id">—</span>
-          </div>
-          <div id="empty-detail">
-            <span class="empty-mark">↗</span>
-            <h3>Follow the work.</h3>
-            <p>Select a job to inspect its payload, result, and transition history.</p>
-          </div>
-          <div id="detail" hidden>
-            <div class="job-heading">
-              <span id="detail-state" class="badge"></span>
-              <h3 id="detail-key"></h3>
-              <p id="detail-meta"></p>
-            </div>
-            <div class="detail-actions">
-              <button id="cancel">Cancel queued job</button
-              ><button id="export">Export record ↓</button>
-            </div>
-            <p id="schedule" class="hint"></p>
-            <p id="job-error" class="job-error" hidden></p>
-            <details>
-              <summary>Payload & result</summary>
-              <h4>INPUT TEXT</h4>
-              <pre id="payload"></pre>
-              <h4>RESULT</h4>
-              <pre id="result"></pre>
-              <p class="hint">Exports include the input text, result, and event history.</p>
-            </details>
-            <h4 class="timeline-label">TRANSITION HISTORY</h4>
-            <ol id="events" class="events"></ol>
-          </div>
-        </aside>
       </section>
-      <footer>
-        <p>Persistent SQLite storage · bounded retries · fenced leases</p>
-        <p>Built-in text handlers only. No shell execution or outbound requests.</p>
-      </footer>
     </main>
+    <dialog id="inspector" class="inspector" aria-label="Job inspector">
+      <div class="panel-title">
+        <h2>Job record</h2>
+        <span id="selected-id">—</span><button id="inspector-close">Close</button>
+      </div>
+      <div id="empty-detail">
+        <p>Select a job to inspect its record.</p>
+      </div>
+      <div id="detail" hidden>
+        <div class="job-heading">
+          <span id="detail-state" class="badge"></span>
+          <h3 id="detail-key"></h3>
+          <p id="detail-meta"></p>
+        </div>
+        <div class="detail-actions">
+          <button id="cancel">Cancel queued job</button><button id="export">Export record</button>
+        </div>
+        <p id="schedule" class="hint"></p>
+        <p id="job-error" class="job-error" hidden></p>
+        <details>
+          <summary>Payload & result</summary>
+          <h4>INPUT TEXT</h4>
+          <pre id="payload"></pre>
+          <h4>RESULT</h4>
+          <pre id="result"></pre>
+          <p class="hint">Exports include the input text, result, and event history.</p>
+        </details>
+        <h4 class="timeline-label">TRANSITION HISTORY</h4>
+        <ol id="events" class="events"></ol>
+      </div>
+      <p id="inspector-notice" role="status"></p>
+    </dialog>
     <dialog id="composer" aria-labelledby="composer-title">
       <form id="job-form">
         <div class="dialog-title">
           <div>
-            <p class="eyebrow">DISPATCH A TASK</p>
-            <h2 id="composer-title">A new piece of work.</h2>
+            <h2 id="composer-title">New job</h2>
           </div>
           <button type="button" id="close" aria-label="Close new job form">×</button>
         </div>
@@ -136,11 +120,13 @@
           <option value="retry-demo">Retry demonstration</option></select
         ><label for="text">Input text</label
         ><textarea id="text" rows="5" maxlength="20000">
-Reliable work starts with a durable record. Reliable retries start with a clear identity.</textarea
+station,reading,status
+station-01,24,ok
+station-02,21,ok</textarea
         >
         <div class="key-label">
           <label for="key">Idempotency key</label
-          ><button id="new-key" type="button">Generate key ↗</button>
+          ><button id="new-key" type="button">Generate key</button>
         </div>
         <input id="key" maxlength="80" pattern="[A-Za-z0-9_.:\-]{1,80}" required />
         <p class="hint">
@@ -191,7 +177,7 @@ Reliable work starts with a durable record. Reliable retries start with a clear 
           </p>
         </details>
         <p id="form-notice" role="status" aria-live="polite"></p>
-        <button type="submit" id="submit" class="primary">Persist job →</button>
+        <button type="submit" id="submit" class="primary">Create job</button>
       </form>
     </dialog>
   </body>

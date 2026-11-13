@@ -23,6 +23,8 @@ const date = (value) => new Date(value * 1000).toLocaleString();
 function notice(message, error = false) {
   $('notice').textContent = message;
   $('notice').className = error ? 'error' : '';
+  $('inspector-notice').textContent = message;
+  $('inspector-notice').className = error ? 'error' : '';
 }
 async function api(path, body) {
   const response = await fetch(path, {
@@ -41,10 +43,13 @@ function setBusy(value) {
   $('cancel').disabled = value || currentJob?.status !== 'queued';
 }
 function renderList(data) {
+  const focusedState = $('counts').contains(document.activeElement)
+    ? document.activeElement.dataset.state
+    : null;
   $('counts').innerHTML = Object.entries(labels)
     .map(
       ([state, label]) =>
-        `<div class="count"><strong>${data.counts[state]}</strong><span>${label.toUpperCase()}</span></div>`,
+        `<button class="count" data-state="${state}" aria-pressed="${$('filter').value === state}"><span>${label}</span><strong>${data.counts[state]}</strong></button>`,
     )
     .join('');
   $('jobs').innerHTML =
@@ -55,6 +60,16 @@ function renderList(data) {
       )
       .join('') ||
     '<tr><td colspan="4"><p class="hint">No jobs in this view. Create a job or choose another state.</p></td></tr>';
+  const all = document.createElement('button');
+  all.className = 'count';
+  all.dataset.state = '';
+  all.setAttribute('aria-pressed', String(!$('filter').value));
+  all.textContent = 'All jobs';
+  $('counts').prepend(all);
+  if (focusedState !== null && focusedState !== undefined)
+    [...$('counts').children]
+      .find((button) => button.dataset.state === focusedState)
+      ?.focus({ preventScroll: true });
   nextBefore = data.next_before;
   $('older').disabled = !nextBefore;
   $('latest').disabled = before === null;
@@ -139,8 +154,21 @@ $('latest').addEventListener('click', () => {
   refresh().catch((error) => notice(error.message, true));
 });
 $('jobs').addEventListener('click', (event) => {
-  const button = event.target.closest('button[data-id]');
-  if (button) inspect(Number(button.dataset.id)).catch((error) => notice(error.message, true));
+  const button = event.target.closest('tr')?.querySelector('button[data-id]');
+  if (button)
+    inspect(Number(button.dataset.id))
+      .then(() => {
+        if (!$('inspector').open) $('inspector').showModal();
+      })
+      .catch((error) => notice(error.message, true));
+});
+$('inspector-close').addEventListener('click', () => $('inspector').close());
+$('counts').addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-state]');
+  if (!button) return;
+  $('filter').value = button.dataset.state;
+  before = null;
+  refresh().catch((error) => notice(error.message, true));
 });
 $('run').addEventListener('click', () =>
   mutate('/api/run-one', {}, (data) =>
